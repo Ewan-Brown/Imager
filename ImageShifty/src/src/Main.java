@@ -3,12 +3,9 @@ package src;
 import java.awt.Color;
 import java.awt.FileDialog;
 import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
-import java.awt.geom.Path2D;
 import java.awt.image.BufferedImage;
-import java.awt.image.VolatileImage;
 import java.io.File;
 import java.io.IOException;
 
@@ -21,7 +18,7 @@ import javax.swing.JPanel;
 
 public class Main extends JPanel{
 	static FastRGB fRGB;
-	static VolatileImage vImg;
+	static BufferedImage vImg;
 	static int w;
 	static int h;
 	static GraphicsConfiguration gc = GraphicsEnvironment.
@@ -48,8 +45,8 @@ public class Main extends JPanel{
 		fRGB = new FastRGB(img);
 		w = img.getWidth();
 		h = img.getHeight();
-		
-		vImg = gc.createCompatibleVolatileImage(w, h);
+
+		vImg = gc.createCompatibleImage(w, h);
 		update();
 		while(true){
 			f.repaint();
@@ -63,8 +60,8 @@ public class Main extends JPanel{
 	}
 	public static void update(){
 		tick++;
-		vImg = gc.createCompatibleVolatileImage(w, h);
-		Graphics g = vImg.createGraphics();
+		vImg = gc.createCompatibleImage(w, h);
+		Graphics gr2 = vImg.createGraphics();
 		int sum = 0;
 		int i = 0;
 		for(int x = 0; x < w;x++){
@@ -78,7 +75,20 @@ public class Main extends JPanel{
 		int tr = (sum >> 16) & 0xFF;
 		int tg = (sum >> 8) & 0xFF;
 		int tb = (sum ) & 0xFF;
-		System.out.println(tr + " " + tg + " " + tb);
+		for(int x = 0; x < w;x++){
+			for(int y = 0; y < h;y++){
+				int tRGB = fRGB.getRGB(x, y);
+				int r = (tRGB >> 16) & 0xFF;
+				int g = (tRGB >> 8) & 0xFF;
+				int b = (tRGB) & 0xFF;
+				int r2 = Math.abs(r - tr);
+				int g2 = Math.abs(g - tg);
+				int b2 = Math.abs(b - tb);
+				System.out.println(r2 + " " + g2 + " " + b2);
+				gr2.setColor(new Color(r2,g2,b2));
+				gr2.fillRect(x, y, 0, 0);
+			}
+		}
 	}
 	public static int getAverage(int x, int y){
 		int i = 0;
